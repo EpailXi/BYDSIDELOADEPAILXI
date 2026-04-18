@@ -247,15 +247,23 @@
             text-decoration: none;
         }
 
+        .store-badge {
+            display: inline-block;
+            margin: 8px 12px 8px 0;
+            padding: 8px 16px;
+            background: #1e293b;
+            color: white;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
         @media (max-width: 600px) {
             .step-content {
                 padding: 20px 18px 28px;
             }
             .step-title {
                 font-size: 1.4rem;
-            }
-            .iframe-embed iframe {
-                height: 380px;
             }
             button {
                 padding: 10px 20px;
@@ -278,22 +286,21 @@
         <!-- dynamic steps injected via JS -->
     </div>
     <div class="credit-footer">
-        <strong>2026: EpailXi with the help of AI tools</strong> — All external toolkits (BYD unlock assistant, WebADB, APKMirror) are property of their respective owners. This wizard merges them for easier sideload.
+        <strong>2026: EpailXi with the help of AI tools</strong> — All external toolkits (BYD unlock assistant, Bugjaeger, APKMirror) are property of their respective owners. This wizard merges them for easier sideload.
     </div>
 </div>
 
 <script>
     // ----- WIZARD STATE -----
     let currentStep = 0;        // 0-based index
-    let totalSteps = 5;
+    let totalSteps = 4;          // now 4 steps (removed old step 5)
     let dilinkVersion = "3.0";   // default 3.0
 
     const steps = [
         { name: "ADB Debug Unlock", render: renderStep1 },
         { name: "WiFi IP Address", render: renderStep2 },
         { name: "Download APK", render: renderStep3 },
-        { name: "Sideload with WebADB", render: renderStep4 },
-        { name: "Finalize & Install", render: renderStep5 }
+        { name: "Sideload with Bugjaeger", render: renderStep4 }
     ];
 
     function refreshStep() {
@@ -318,7 +325,7 @@
         dotsContainer.innerHTML = dotsHtml;
     }
 
-    // ---- RENDER FUNCTIONS (no emojis, clean ASCII) ----
+    // ---- RENDER FUNCTIONS ----
     function renderStep1() {
         return `
             <div class="step-title"><span class="step-number-circle">1</span> Enable ADB Debugging</div>
@@ -356,7 +363,7 @@
             <div class="instruction-card">
                 <p>Get the Android app you want to sideload from a <strong>reliable source that you trust, such as APKMirror</strong>.</p>
                 <p style="margin-top: 12px;">[link] <a href="https://www.apkmirror.com/" target="_blank" rel="noopener noreferrer" style="color:#15803d; font-weight:600;">https://www.apkmirror.com/</a></p>
-                <p>Save the <strong>.apk</strong> file on your computer or phone (the same device you use to access this wizard).</p>
+                <p>Save the <strong>.apk</strong> file on your phone (the same device you will use with Bugjaeger).</p>
                 <div class="warning-note">
                     Only install apps you trust. APKMirror is a reputable archive.
                 </div>
@@ -366,39 +373,24 @@
 
     function renderStep4() {
         return `
-            <div class="step-title"><span class="step-number-circle">4</span> Sideload with WebADB</div>
+            <div class="step-title"><span class="step-number-circle">4</span> Sideload with Bugjaeger (from phone)</div>
             <div class="instruction-card">
-                <p>Use the browser-based ADB tool below to install APK over WiFi. Make sure ADB debugging is ON (Step 1) and you have the IP address (Step 2).</p>
-                <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>Inside the tool: click <strong>"Connect"</strong> -> enter <code>[CAR_IP]:5555</code> (e.g., 192.168.1.100:5555).</li>
-                    <li>On car screen: approve <strong>"Allow USB debugging?"</strong> prompt.</li>
-                    <li>Once connected, go to <strong>"Install APK"</strong> tab and select your downloaded APK.</li>
-                </ul>
-            </div>
-            <div class="warning-note" style="background:#e8f0fe; border-left-color:#3b82f6;">
-                [Compatibility] Currently, only Chromium-based browsers (Chrome, Microsoft Edge, Opera) support the WebUSB API required for WebADB.
-            </div>
-            <div class="iframe-embed">
-                <iframe src="https://app.webadb.com/install" title="WebADB Installer" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads allow-top-navigation-by-user-activation"></iframe>
-            </div>
-            <div class="warning-note">
-                [Tip] If connection fails, double-check IP and that car & device share same WiFi. Restart car's multimedia if needed.
-            </div>
-        `;
-    }
-
-    function renderStep5() {
-        return `
-            <div class="step-title"><span class="step-number-circle">5</span> Finish & Enjoy</div>
-            <div class="instruction-card">
-                <p>[OK] After successful installation via WebADB, your app will appear instantly in the BYD app drawer (no restart needed).</p>
-                <ul style="margin-left: 20px; margin-top: 12px;">
-                    <li>To uninstall an app: long press the app icon on the BYD screen, then press "Uninstall".</li>
-                    <li>Use WebADB's interface to manage or uninstall apps as an alternative method.</li>
-                    <li>You can also explore more features (file explorer, logs) in WebADB.</li>
-                </ul>
-                <div style="margin-top: 20px; background: #e6f7ec; border-radius: 28px; padding: 16px;">
-                    <strong>Sideload complete!</strong> Enjoy custom apps on your BYD DiLink.
+                <p><strong>Recommended method:</strong> Use Bugjaeger – a mobile ADB tool that works directly from your Android or Apple device.</p>
+                <p>Install Bugjaeger from your device's app store:</p>
+                <div style="margin: 16px 0;">
+                    <a href="https://play.google.com/store/apps/details?id=eu.sisik.hackendebug&hl=en" target="_blank" rel="noopener noreferrer" class="store-badge" style="background:#3ddc84; color:#000;">Google Play Store</a>
+                    <a href="https://apps.apple.com/my/app/bugjaeger-mobile-adb/id6463413200" target="_blank" rel="noopener noreferrer" class="store-badge" style="background:#000; color:#fff;">Apple App Store</a>
+                </div>
+                <ol style="margin-left: 20px; margin-top: 12px;">
+                    <li>Make sure your phone and BYD car are on the <strong>same WiFi network</strong>.</li>
+                    <li>Open Bugjaeger and go to the <strong>“Connect”</strong> section.</li>
+                    <li>Enter your car's IP address (from Step 2) followed by <code>:5555</code> (e.g., <code>192.168.1.100:5555</code>).</li>
+                    <li>On the BYD screen, approve the <strong>“Allow USB debugging?”</strong> prompt when it appears.</li>
+                    <li>Once connected, go to the <strong>“Install APK”</strong> feature in Bugjaeger and select the APK you downloaded in Step 3.</li>
+                    <li>The app will install instantly – no restart needed.</li>
+                </ol>
+                <div class="warning-note">
+                    [Tip] If connection fails, double-check the IP address and ensure both devices are on the same WiFi. Restart Bugjaeger or the car's multimedia if needed.
                 </div>
             </div>
         `;
@@ -424,28 +416,8 @@
             });
             updateStep1DynamicContent();
         }
-        else if (currentStep === 4) {
-            // Step 5 (index 4) - add a "Start Over" button if not already present
-            if (!document.getElementById("restartWizardBtn")) {
-                const step5Container = document.getElementById("stepContent");
-                if (step5Container) {
-                    const restartDiv = document.createElement("div");
-                    restartDiv.style.textAlign = "center";
-                    restartDiv.style.marginTop = "20px";
-                    restartDiv.innerHTML = `<button id="restartWizardBtn" class="outline">[R] Start Over</button>`;
-                    step5Container.appendChild(restartDiv);
-                    const restartBtn = document.getElementById("restartWizardBtn");
-                    if (restartBtn) {
-                        restartBtn.addEventListener("click", () => {
-                            currentStep = 0;
-                            refreshStep();
-                        });
-                    }
-                }
-            }
-        }
 
-        // ---- Navigation buttons: add them for every step ----
+        // Navigation buttons for all steps
         addNavigationButtons();
     }
 
@@ -478,7 +450,7 @@
                     refreshStep();
                     window.scrollTo({ top: 0, behavior: "smooth" });
                 } else if (currentStep === totalSteps - 1) {
-                    alert("Sideload process completed! Enjoy your apps.");
+                    alert("Sideload process completed! Enjoy your apps on BYD DiLink.");
                 }
             });
         }
