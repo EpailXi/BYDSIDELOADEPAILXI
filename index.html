@@ -507,8 +507,15 @@
                         <small>tap code to copy</small>
                         <li>After typing, the system shows your IMEI and a blank text field (with Chinese characters below).</li>
                         <li>Look at the unlock assistant below — it will display a <strong>password or key</strong>. Enter that password into the blank text field on your BYD screen.</li>
-                        <li>After entering the password, the unlock is complete. Then press the <strong>"Finish Unlock"</strong> button below.</li>
+                        <li><strong>After entering the password, a new screen will pop up</strong> with several options.</li>
+                        <li>Select <strong>"Test tools"</strong> and enable both:
+                            <ul style="margin-top: 6px; margin-left: 20px;">
+                                <li><strong>Wireless ADB debug switch</strong></li>
+                                <li><strong>Debug mode when USB is connected</strong></li>
+                            </ul>
+                        </li>
                     </ol>
+                    <p style="margin-top: 12px;">After completing these steps, ADB debugging will be fully unlocked.</p>
                 </div>
                 <div style="margin: 8px 0 8px;">
                     <button id="finishUnlockBtn3" class="outline">Finish Unlock -> Confirm ADB DEBUG</button>
@@ -517,7 +524,7 @@
                     <iframe src="https://ahmada3mar.github.io/BYD/" title="BYD Unlock Assistant" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-top-navigation"></iframe>
                 </div>
                 <div class="warning-note">
-                    The unlock assistant above will show the password you need to type into your BYD screen's text field. After that, click the "Finish Unlock" button.
+                    The unlock assistant above will show the password you need to type into your BYD screen's text field. After that, follow steps 5 and 6 above, then click "Finish Unlock".
                 </div>
                 <div id="step1CongratsMsg"></div>
             `;
