@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>BYD Sideload Wizard | EpailXi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f7fc;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, Helvetica, sans-serif;
+            padding: 16px;
+            color: #0a2a1f;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wizard-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 44px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .disclaimer {
+            background: #fff3e0;
+            border-left: 5px solid #e67e22;
+            padding: 14px 20px;
+            margin: 16px 20px 0 20px;
+            border-radius: 28px;
+            font-size: 0.85rem;
+            color: #7a4c0c;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .progress-header {
+            background: #ffffff;
+            padding: 20px 24px 12px;
+            border-bottom: 1px solid #e9edf2;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .step-badge {
+            background: #eef2ff;
+            padding: 6px 16px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e4620;
+        }
+
+        .steps-dots {
+            display: flex;
+            gap: 12px;
+        }
+
+        .dot {
+            width: 34px;
+            height: 4px;
+            background: #cbd5e1;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+
+        .dot.active {
+            background: #15803d;
+            width: 48px;
+        }
+
+        .step-content {
+            padding: 24px 28px 32px;
+            transition: 0.2s;
+        }
+
+        .step-title {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #0f3b2c;
+        }
+
+        .step-number-circle {
+            background: #15803d;
+            color: white;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .instruction-card {
+            background: #f9fbfe;
+            border-radius: 28px;
+            padding: 20px;
+            margin: 18px 0;
+            border-left: 5px solid #15803d;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .dial-code {
+            font-family: monospace;
+            font-size: 1.3rem;
+            background: #0f172a;
+            color: #bef264;
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 60px;
+            letter-spacing: 1px;
+            margin: 12px 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        button {
+            background: #15803d;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 60px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button.outline {
+            background: transparent;
+            border: 1px solid #15803d;
+            color: #15803d;
+        }
+
+        button.outline:hover {
+            background: #e9f4ef;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+            gap: 12px;
+        }
+
+        .iframe-embed {
+            margin-top: 20px;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        .iframe-embed iframe {
+            width: 100%;
+            height: 460px;
+            border: none;
+            display: block;
+        }
+
+        .congrats-msg {
+            background: #dcfce7;
+            border-radius: 28px;
+            padding: 14px 20px;
+            margin: 20px 0 0;
+            font-weight: bold;
+            color: #14532d;
+            border: 1px solid #86efac;
+        }
+
+        .warning-note {
+            background: #fffbeb;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 16px;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .version-selector {
+            background: #f1f5f9;
+            border-radius: 60px;
+            display: inline-flex;
+            gap: 8px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .version-opt {
+            border: none;
+            background: transparent;
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #2c3e4e;
+        }
+
+        .version-opt.active {
+            background: #15803d;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .credit-footer {
+            background: #eef2ff;
+            text-align: center;
+            padding: 18px 20px;
+            font-size: 0.7rem;
+            color: #1e293b;
+            border-top: 1px solid #cbd5e1;
+        }
+
+        .credit-footer a {
+            color: #15803d;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .step-content {
+                padding: 20px 18px 28px;
+            }
+            .step-title {
+                font-size: 1.4rem;
+            }
+            .iframe-embed iframe {
+                height: 380px;
+            }
+            button {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wizard-container" id="wizardApp">
+    <div class="disclaimer">
+        [!] Disclaimer: This wizard is to assist on sideload. User is advised to use at their own risk.
+    </div>
+    <div class="progress-header">
+        <div class="step-indicator">
+            <span class="step-badge" id="stepNameDisplay">Step 1: ADB Debug</span>
+            <div class="steps-dots" id="dotsContainer"></div>
+        </div>
+    </div>
+    <div class="step-content" id="stepContent">
+        <!-- dynamic steps injected via JS -->
+    </div>
+    <div class="credit-footer">
+        <strong>2026: EpailXi with the help of AI tools</strong> — All external toolkits (BYD unlock assistant, WebADB, APKMirror) are property of their respective owners. This wizard merges them for easier sideload.
+    </div>
+</div>
+
+<script>
+    // ----- WIZARD STATE -----
+    let currentStep = 0;        // 0-based index
+    let totalSteps = 5;
+    let dilinkVersion = "3.0";   // default 3.0
+
+    const steps = [
+        { name: "ADB Debug Unlock", render: renderStep1 },
+        { name: "WiFi IP Address", render: renderStep2 },
+        { name: "Download APK", render: renderStep3 },
+        { name: "Sideload with WebADB", render: renderStep4 },
+        { name: "Finalize & Install", render: renderStep5 }
+    ];
+
+    function refreshStep() {
+        const stepDef = steps[currentStep];
+        const container = document.getElementById("stepContent");
+        if (!container) return;
+        const html = stepDef.render();
+        container.innerHTML = html;
+        document.getElementById("stepNameDisplay").innerText = `Step ${currentStep+1}: ${stepDef.name}`;
+        updateDots();
+        attachStepEvents();
+    }
+
+    function updateDots() {
+        const dotsContainer = document.getElementById("dotsContainer");
+        if (!dotsContainer) return;
+        let dotsHtml = "";
+        for (let i = 0; i < totalSteps; i++) {
+            const activeClass = (i === currentStep) ? "active" : "";
+            dotsHtml += `<div class="dot ${activeClass}"></div>`;
+        }
+        dotsContainer.innerHTML = dotsHtml;
+    }
+
+    // ---- RENDER FUNCTIONS (no emojis, clean ASCII) ----
+    function renderStep1() {
+        return `
+            <div class="step-title"><span class="step-number-circle">1</span> Enable ADB Debugging</div>
+            <div class="version-selector" id="versionSelectorStep1">
+                <button class="version-opt ${dilinkVersion === '3.0' ? 'active' : ''}" data-ver="3.0">DiLink 3.0</button>
+                <button class="version-opt ${dilinkVersion === '5.0' ? 'active' : ''}" data-ver="5.0">DiLink 5.0</button>
+            </div>
+            <div id="step1DynamicArea"></div>
+            <div class="skip-note" style="background:#f1f5f9; padding:10px 16px; border-radius:28px; margin-top:12px;">
+                [i] Already enabled ADB before? You can skip to Step 2 using Next button.
+            </div>
+        `;
+    }
+
+    function renderStep2() {
+        return `
+            <div class="step-title"><span class="step-number-circle">2</span> Obtain WiFi IP Address</div>
+            <div class="instruction-card">
+                <p><strong>[Network] Same network required:</strong> Connect your car and your device (phone/tablet/laptop) to the <strong>same WiFi</strong>.</p>
+                <ul style="margin-left: 20px; margin-top: 12px;">
+                    <li>On BYD multimedia screen: tap the <strong>WiFi icon</strong> on top bar.</li>
+                    <li>Select the connected WiFi -> details show the <strong>IP address</strong> (e.g., 192.168.1.x).</li>
+                    <li>Write down this IP — you'll need it in Step 4.</li>
+                </ul>
+                <div style="background:#eef2ff; border-radius: 20px; padding: 8px 14px; margin-top: 14px;">
+                    Example: <code>192.168.1.123</code> or <code>10.0.0.45</code>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderStep3() {
+        return `
+            <div class="step-title"><span class="step-number-circle">3</span> Download APK (trusted source)</div>
+            <div class="instruction-card">
+                <p>Get the Android app you want to sideload from a <strong>reliable source that you trust, such as APKMirror</strong>.</p>
+                <p style="margin-top: 12px;">[link] <a href="https://www.apkmirror.com/" target="_blank" rel="noopener noreferrer" style="color:#15803d; font-weight:600;">https://www.apkmirror.com/</a></p>
+                <p>Save the <strong>.apk</strong> file on your computer or phone (the same device you use to access this wizard).</p>
+                <div class="warning-note">
+                    Only install apps you trust. APKMirror is a reputable archive.
+                </div>
+            </div>
+        `;
+    }
+
+    function renderStep4() {
+        return `
+            <div class="step-title"><span class="step-number-circle">4</span> Sideload with WebADB</div>
+            <div class="instruction-card">
+                <p>Use the browser-based ADB tool below to install APK over WiFi. Make sure ADB debugging is ON (Step 1) and you have the IP address (Step 2).</p>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>Inside the tool: click <strong>"Connect"</strong> -> enter <code>[CAR_IP]:5555</code> (e.g., 192.168.1.100:5555).</li>
+                    <li>On car screen: approve <strong>"Allow USB debugging?"</strong> prompt.</li>
+                    <li>Once connected, go to <strong>"Install APK"</strong> tab and select your downloaded APK.</li>
+                </ul>
+            </div>
+            <div class="warning-note" style="background:#e8f0fe; border-left-color:#3b82f6;">
+                [Compatibility] Currently, only Chromium-based browsers (Chrome, Microsoft Edge, Opera) support the WebUSB API required for WebADB.
+            </div>
+            <div class="iframe-embed">
+                <iframe src="https://app.webadb.com/install" title="WebADB Installer" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads allow-top-navigation-by-user-activation"></iframe>
+            </div>
+            <div class="warning-note">
+                [Tip] If connection fails, double-check IP and that car & device share same WiFi. Restart car's multimedia if needed.
+            </div>
+        `;
+    }
+
+    function renderStep5() {
+        return `
+            <div class="step-title"><span class="step-number-circle">5</span> Finish & Enjoy</div>
+            <div class="instruction-card">
+                <p>[OK] After successful installation via WebADB, your app will appear instantly in the BYD app drawer (no restart needed).</p>
+                <ul style="margin-left: 20px; margin-top: 12px;">
+                    <li>To uninstall an app: long press the app icon on the BYD screen, then press "Uninstall".</li>
+                    <li>Use WebADB's interface to manage or uninstall apps as an alternative method.</li>
+                    <li>You can also explore more features (file explorer, logs) in WebADB.</li>
+                </ul>
+                <div style="margin-top: 20px; background: #e6f7ec; border-radius: 28px; padding: 16px;">
+                    <strong>Sideload complete!</strong> Enjoy custom apps on your BYD DiLink.
+                </div>
+            </div>
+        `;
+    }
+
+    // ---- attach events for each step (including navigation) ----
+    function attachStepEvents() {
+        // Step 1 specific: version switching and dynamic content
+        if (currentStep === 0) {
+            const verBtns = document.querySelectorAll("#versionSelectorStep1 .version-opt");
+            verBtns.forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const newVer = btn.getAttribute("data-ver");
+                    if (newVer) {
+                        dilinkVersion = newVer;
+                        verBtns.forEach(b => b.classList.remove("active"));
+                        btn.classList.add("active");
+                        updateStep1DynamicContent();
+                        const congratsDiv = document.getElementById("step1CongratsMsg");
+                        if (congratsDiv) congratsDiv.remove();
+                    }
+                });
+            });
+            updateStep1DynamicContent();
+        }
+        else if (currentStep === 4) {
+            // Step 5 (index 4) - add a "Start Over" button if not already present
+            if (!document.getElementById("restartWizardBtn")) {
+                const step5Container = document.getElementById("stepContent");
+                if (step5Container) {
+                    const restartDiv = document.createElement("div");
+                    restartDiv.style.textAlign = "center";
+                    restartDiv.style.marginTop = "20px";
+                    restartDiv.innerHTML = `<button id="restartWizardBtn" class="outline">[R] Start Over</button>`;
+                    step5Container.appendChild(restartDiv);
+                    const restartBtn = document.getElementById("restartWizardBtn");
+                    if (restartBtn) {
+                        restartBtn.addEventListener("click", () => {
+                            currentStep = 0;
+                            refreshStep();
+                        });
+                    }
+                }
+            }
+        }
+
+        // ---- Navigation buttons: add them for every step ----
+        addNavigationButtons();
+    }
+
+    function addNavigationButtons() {
+        // Remove any existing nav wrapper to avoid duplication
+        const oldNav = document.querySelector(".nav-buttons-wrapper");
+        if (oldNav) oldNav.remove();
+
+        const stepContainer = document.getElementById("stepContent");
+        if (!stepContainer) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "nav-buttons-wrapper";
+        wrapper.style.marginTop = "32px";
+        wrapper.innerHTML = `
+            <div class="nav-buttons">
+                <button id="prevStepBtn" class="outline" ${currentStep === 0 ? 'disabled style="opacity:0.5;"' : ''}>Previous</button>
+                <button id="nextStepBtn" class="${currentStep === totalSteps-1 ? 'outline' : ''}">${currentStep === totalSteps-1 ? 'Finish' : 'Next'}</button>
+            </div>
+        `;
+        stepContainer.appendChild(wrapper);
+
+        const nextBtn = document.getElementById("nextStepBtn");
+        const prevBtn = document.getElementById("prevStepBtn");
+
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                if (currentStep < totalSteps - 1) {
+                    currentStep++;
+                    refreshStep();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                } else if (currentStep === totalSteps - 1) {
+                    alert("Sideload process completed! Enjoy your apps.");
+                }
+            });
+        }
+        if (prevBtn) {
+            prevBtn.addEventListener("click", () => {
+                if (currentStep > 0) {
+                    currentStep--;
+                    refreshStep();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+            });
+        }
+    }
+
+    function updateStep1DynamicContent() {
+        const dynamicArea = document.getElementById("step1DynamicArea");
+        if (!dynamicArea) return;
+        if (dilinkVersion === "3.0") {
+            dynamicArea.innerHTML = `
+                <div class="instruction-card">
+                    <p><strong>DiLink 3.0 - Secret dialer + assistant</strong></p>
+                    <ol style="margin-left: 20px;">
+                        <li>Open the <strong>Phone app (dialer)</strong> on your BYD screen.</li>
+                        <li>Type the code:</li>
+                        <div class="dial-code" id="dialCodeCopy">*#91532547#*</div>
+                        <small>tap code to copy</small>
+                        <li>After typing, the system shows IMEI + blank field. Use the unlock assistant below.</li>
+                        <li>Follow instructions inside the frame, then press <strong>"Finish Unlock"</strong>.</li>
+                    </ol>
+                </div>
+                <div style="margin: 8px 0 8px;">
+                    <button id="finishUnlockBtn3" class="outline">Finish Unlock -> Confirm ADB DEBUG</button>
+                </div>
+                <div class="iframe-embed">
+                    <iframe src="https://ahmada3mar.github.io/BYD/" title="BYD Unlock Assistant" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-top-navigation"></iframe>
+                </div>
+                <div class="warning-note">
+                    After the unlock process inside the iframe, click the button above to confirm ADB debug is unlocked.
+                </div>
+                <div id="step1CongratsMsg"></div>
+            `;
+            const finishBtn = document.getElementById("finishUnlockBtn3");
+            if (finishBtn) {
+                finishBtn.addEventListener("click", () => showCongratsMessageStep1());
+            }
+            const dialElem = document.getElementById("dialCodeCopy");
+            if (dialElem) {
+                dialElem.addEventListener("click", () => copyToClipboard("*#91532547#*"));
+            }
+        } 
+        else if (dilinkVersion === "5.0") {
+            dynamicArea.innerHTML = `
+                <div class="instruction-card">
+                    <p><strong>DiLink 5.0 - Hidden developer menu</strong></p>
+                    <ol style="margin-left: 20px;">
+                        <li>Go to <strong>Settings -> Version</strong> (or System -> About).</li>
+                        <li>Repeatedly tap on <strong>"Factory reset"</strong> text (5-10 times) until hidden menu appears.</li>
+                        <li><strong>Rotate your screen</strong> (landscape/portrait) to reveal extra options.</li>
+                        <li>Tap the first option: <strong>"Connect USB to enable debugging mode"</strong> repeatedly until you see <strong>"turn on adb debugging"</strong> popup.</li>
+                        <li>ADB debugging over WiFi is now active.</li>
+                    </ol>
+                </div>
+                <div style="margin: 12px 0;">
+                    <button id="confirmAdb5Btn">Confirm ADB Debugging Enabled</button>
+                </div>
+                <div id="step1CongratsMsg"></div>
+                <div class="warning-note">
+                    Note: Tapping "Factory reset" does NOT wipe your car. This just unlocks developer ADB.
+                </div>
+            `;
+            const confirmBtn = document.getElementById("confirmAdb5Btn");
+            if (confirmBtn) {
+                confirmBtn.addEventListener("click", () => showCongratsMessageStep1());
+            }
+        }
+    }
+
+    function showCongratsMessageStep1() {
+        let congratsDiv = document.getElementById("step1CongratsMsg");
+        if (!congratsDiv) {
+            const parent = document.getElementById("step1DynamicArea");
+            if (parent) {
+                congratsDiv = document.createElement("div");
+                congratsDiv.id = "step1CongratsMsg";
+                congratsDiv.className = "congrats-msg";
+                parent.appendChild(congratsDiv);
+            }
+        }
+        if (congratsDiv) {
+            congratsDiv.innerHTML = `[SUCCESS] ADB DEBUG UNLOCKED !\nADB debugging is active on DiLink ${dilinkVersion}. You can proceed to Step 2.`;
+            congratsDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.createElement("div");
+            toast.innerText = "Copied: " + text;
+            toast.style.position = "fixed";
+            toast.style.bottom = "30px";
+            toast.style.left = "50%";
+            toast.style.transform = "translateX(-50%)";
+            toast.style.backgroundColor = "#0f172a";
+            toast.style.color = "#bef264";
+            toast.style.padding = "8px 20px";
+            toast.style.borderRadius = "60px";
+            toast.style.zIndex = "9999";
+            toast.style.fontWeight = "bold";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 1800);
+        }).catch(() => alert("Manual copy: " + text));
+    }
+
+    function init() {
+        refreshStep();
+    }
+    init();
+</script>
+</body>
+</html>
