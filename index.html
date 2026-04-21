@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>BYD Sideload Wizard | EpailXi</title>
+    <title>BYD Tools | Sideload & IVI Upgrade | EpailXi</title>
     <style>
         * {
             margin: 0;
@@ -23,7 +23,7 @@
         }
 
         .wizard-container {
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             margin: 0 auto;
             background: white;
@@ -31,6 +31,43 @@
             box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15);
             overflow: hidden;
             transition: all 0.2s ease;
+        }
+
+        /* Tab Bar */
+        .tab-bar {
+            display: flex;
+            background: #ffffff;
+            border-bottom: 1px solid #e9edf2;
+            padding: 0 20px;
+            gap: 8px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 16px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #5a6e7c;
+            cursor: pointer;
+            transition: 0.2s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab-btn.active {
+            color: #15803d;
+            border-bottom-color: #15803d;
+        }
+        .tab-btn:hover:not(.active) {
+            color: #2c5a3a;
+            background: #f8fafc;
+        }
+
+        /* Main Content Panels */
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active-panel {
+            display: block;
         }
 
         .disclaimer {
@@ -258,6 +295,16 @@
             font-size: 0.8rem;
         }
 
+        .firmware-link {
+            font-size: 1rem;
+            word-break: break-all;
+            background: #eef2ff;
+            padding: 12px;
+            border-radius: 28px;
+            text-align: center;
+            margin: 16px 0;
+        }
+
         @media (max-width: 600px) {
             .step-content {
                 padding: 20px 18px 28px;
@@ -268,65 +315,94 @@
             button {
                 padding: 10px 20px;
             }
+            .tab-btn {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
-<div class="wizard-container" id="wizardApp">
+<div class="wizard-container" id="mainApp">
     <div class="disclaimer">
-        [!] Disclaimer: This wizard is to assist on sideload. User is advised to use at their own risk.
+        [!] Disclaimer: All tools are for educational & community use. User is advised to use at their own risk. Modifications may void warranty.
     </div>
-    <div class="progress-header">
-        <div class="step-indicator">
-            <span class="step-badge" id="stepNameDisplay">Step 1: ADB Debug</span>
-            <div class="steps-dots" id="dotsContainer"></div>
+    
+    <!-- Tab Navigation -->
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="sideload">Sideload Apps</button>
+        <button class="tab-btn" data-tab="upgrade">Upgrade IVI Software</button>
+    </div>
+
+    <!-- Panel 1: SIDELOAD (Original functionality) -->
+    <div id="sideloadPanel" class="tab-panel active-panel">
+        <div class="progress-header">
+            <div class="step-indicator">
+                <span class="step-badge" id="stepNameDisplaySideload">Step 1: ADB Debug</span>
+                <div class="steps-dots" id="dotsContainerSideload"></div>
+            </div>
+        </div>
+        <div class="step-content" id="stepContentSideload">
+            <!-- dynamic steps injected via JS -->
         </div>
     </div>
-    <div class="step-content" id="stepContent">
-        <!-- dynamic steps injected via JS -->
+
+    <!-- Panel 2: UPGRADE IVI SOFTWARE (In-Vehicle Infotainment) -->
+    <div id="upgradePanel" class="tab-panel">
+        <div class="progress-header">
+            <div class="step-indicator">
+                <span class="step-badge" id="stepNameDisplayUpgrade">Step 1: Obtain IVI Firmware</span>
+                <div class="steps-dots" id="dotsContainerUpgrade"></div>
+            </div>
+        </div>
+        <div class="step-content" id="stepContentUpgrade">
+            <!-- dynamic steps for IVI upgrade -->
+        </div>
     </div>
+
     <div class="credit-footer">
-        <strong>2026: EpailXi with the help of AI tools</strong> — All external toolkits (BYD unlock assistant, Bugjaeger, APKMirror) are property of their respective owners. This wizard merges them for easier sideload.
+        <strong>2026: EpailXi with the help of AI tools</strong> — All external toolkits (BYD unlock assistant, Bugjaeger, ModHub24, APKMirror) are property of their respective owners. This wizard merges them for easier access.
     </div>
 </div>
 
 <script>
-    // ----- WIZARD STATE -----
-    let currentStep = 0;        // 0-based index
-    let totalSteps = 4;          // now 4 steps (removed old step 5)
-    let dilinkVersion = "3.0";   // default 3.0
+    // ========================
+    // 1. SIDELOAD WIZARD LOGIC
+    // ========================
+    let currentStepSideload = 0;
+    let totalStepsSideload = 4;
+    let dilinkVersion = "3.0";
 
-    const steps = [
-        { name: "ADB Debug Unlock", render: renderStep1 },
-        { name: "WiFi IP Address", render: renderStep2 },
-        { name: "Download APK", render: renderStep3 },
-        { name: "Sideload with Bugjaeger", render: renderStep4 }
+    const stepsSideload = [
+        { name: "ADB Debug Unlock", render: renderStep1Sideload },
+        { name: "WiFi IP Address", render: renderStep2Sideload },
+        { name: "Download APK", render: renderStep3Sideload },
+        { name: "Sideload with Bugjaeger", render: renderStep4Sideload }
     ];
 
-    function refreshStep() {
-        const stepDef = steps[currentStep];
-        const container = document.getElementById("stepContent");
+    function refreshSideloadStep() {
+        const stepDef = stepsSideload[currentStepSideload];
+        const container = document.getElementById("stepContentSideload");
         if (!container) return;
         const html = stepDef.render();
         container.innerHTML = html;
-        document.getElementById("stepNameDisplay").innerText = `Step ${currentStep+1}: ${stepDef.name}`;
-        updateDots();
-        attachStepEvents();
+        document.getElementById("stepNameDisplaySideload").innerText = `Step ${currentStepSideload+1}: ${stepDef.name}`;
+        updateDotsSideload();
+        attachSideloadEvents();
     }
 
-    function updateDots() {
-        const dotsContainer = document.getElementById("dotsContainer");
+    function updateDotsSideload() {
+        const dotsContainer = document.getElementById("dotsContainerSideload");
         if (!dotsContainer) return;
         let dotsHtml = "";
-        for (let i = 0; i < totalSteps; i++) {
-            const activeClass = (i === currentStep) ? "active" : "";
+        for (let i = 0; i < totalStepsSideload; i++) {
+            const activeClass = (i === currentStepSideload) ? "active" : "";
             dotsHtml += `<div class="dot ${activeClass}"></div>`;
         }
         dotsContainer.innerHTML = dotsHtml;
     }
 
-    // ---- RENDER FUNCTIONS ----
-    function renderStep1() {
+    function renderStep1Sideload() {
         return `
             <div class="step-title"><span class="step-number-circle">1</span> Enable ADB Debugging</div>
             <div class="version-selector" id="versionSelectorStep1">
@@ -339,8 +415,7 @@
             </div>
         `;
     }
-
-    function renderStep2() {
+    function renderStep2Sideload() {
         return `
             <div class="step-title"><span class="step-number-circle">2</span> Obtain WiFi IP Address</div>
             <div class="instruction-card">
@@ -356,8 +431,7 @@
             </div>
         `;
     }
-
-    function renderStep3() {
+    function renderStep3Sideload() {
         return `
             <div class="step-title"><span class="step-number-circle">3</span> Download APK (trusted source)</div>
             <div class="instruction-card">
@@ -370,8 +444,7 @@
             </div>
         `;
     }
-
-    function renderStep4() {
+    function renderStep4Sideload() {
         return `
             <div class="step-title"><span class="step-number-circle">4</span> Sideload with Bugjaeger (from phone)</div>
             <div class="instruction-card">
@@ -383,23 +456,21 @@
                 </div>
                 <ol style="margin-left: 20px; margin-top: 12px;">
                     <li>Make sure your phone and BYD car are on the <strong>same WiFi network</strong>.</li>
-                    <li>Open Bugjaeger and go to the <strong>“Connect”</strong> section.</li>
+                    <li>Open Bugjaeger and go to the <strong>"Connect"</strong> section.</li>
                     <li>Enter your car's IP address (from Step 2) followed by <code>:5555</code> (e.g., <code>192.168.1.100:5555</code>).</li>
-                    <li>On the BYD screen, approve the <strong>“Allow USB debugging?”</strong> prompt when it appears.</li>
-                    <li>Once connected, go to the <strong>“Install APK”</strong> feature in Bugjaeger and select the APK you downloaded in Step 3.</li>
+                    <li>On the BYD screen, approve the <strong>"Allow USB debugging?"</strong> prompt when it appears.</li>
+                    <li>Once connected, go to the <strong>"Install APK"</strong> feature in Bugjaeger and select the APK you downloaded in Step 3.</li>
                     <li>The app will install instantly – no restart needed.</li>
                 </ol>
                 <div class="warning-note">
-                    [Tip] If connection fails, double-check the IP address and ensure both devices are on the same WiFi. Restart Bugjaeger or the car's multimedia if needed.
+                    [Tip] If connection fails, double-check the IP address and ensure both devices are on the same WiFi.
                 </div>
             </div>
         `;
     }
 
-    // ---- attach events for each step (including navigation) ----
-    function attachStepEvents() {
-        // Step 1 specific: version switching and dynamic content
-        if (currentStep === 0) {
+    function attachSideloadEvents() {
+        if (currentStepSideload === 0) {
             const verBtns = document.querySelectorAll("#versionSelectorStep1 .version-opt");
             verBtns.forEach(btn => {
                 btn.addEventListener("click", (e) => {
@@ -416,49 +487,42 @@
             });
             updateStep1DynamicContent();
         }
-
-        // Navigation buttons for all steps
-        addNavigationButtons();
+        addSideloadNavigation();
     }
 
-    function addNavigationButtons() {
-        // Remove any existing nav wrapper to avoid duplication
-        const oldNav = document.querySelector(".nav-buttons-wrapper");
+    function addSideloadNavigation() {
+        const oldNav = document.querySelector(".sideload-nav-wrapper");
         if (oldNav) oldNav.remove();
-
-        const stepContainer = document.getElementById("stepContent");
+        const stepContainer = document.getElementById("stepContentSideload");
         if (!stepContainer) return;
-
         const wrapper = document.createElement("div");
-        wrapper.className = "nav-buttons-wrapper";
+        wrapper.className = "sideload-nav-wrapper";
         wrapper.style.marginTop = "32px";
         wrapper.innerHTML = `
             <div class="nav-buttons">
-                <button id="prevStepBtn" class="outline" ${currentStep === 0 ? 'disabled style="opacity:0.5;"' : ''}>Previous</button>
-                <button id="nextStepBtn" class="${currentStep === totalSteps-1 ? 'outline' : ''}">${currentStep === totalSteps-1 ? 'Finish' : 'Next'}</button>
+                <button id="prevStepSideload" class="outline" ${currentStepSideload === 0 ? 'disabled style="opacity:0.5;"' : ''}>Previous</button>
+                <button id="nextStepSideload" class="${currentStepSideload === totalStepsSideload-1 ? 'outline' : ''}">${currentStepSideload === totalStepsSideload-1 ? 'Finish' : 'Next'}</button>
             </div>
         `;
         stepContainer.appendChild(wrapper);
-
-        const nextBtn = document.getElementById("nextStepBtn");
-        const prevBtn = document.getElementById("prevStepBtn");
-
+        const nextBtn = document.getElementById("nextStepSideload");
+        const prevBtn = document.getElementById("prevStepSideload");
         if (nextBtn) {
             nextBtn.addEventListener("click", () => {
-                if (currentStep < totalSteps - 1) {
-                    currentStep++;
-                    refreshStep();
+                if (currentStepSideload < totalStepsSideload - 1) {
+                    currentStepSideload++;
+                    refreshSideloadStep();
                     window.scrollTo({ top: 0, behavior: "smooth" });
-                } else if (currentStep === totalSteps - 1) {
+                } else if (currentStepSideload === totalStepsSideload - 1) {
                     alert("Sideload process completed! Enjoy your apps on BYD DiLink.");
                 }
             });
         }
         if (prevBtn) {
             prevBtn.addEventListener("click", () => {
-                if (currentStep > 0) {
-                    currentStep--;
-                    refreshStep();
+                if (currentStepSideload > 0) {
+                    currentStepSideload--;
+                    refreshSideloadStep();
                     window.scrollTo({ top: 0, behavior: "smooth" });
                 }
             });
@@ -496,18 +560,14 @@
                     <iframe src="https://ahmada3mar.github.io/BYD/" title="BYD Unlock Assistant" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-top-navigation"></iframe>
                 </div>
                 <div class="warning-note">
-                    The unlock assistant above will show the password you need to type into your BYD screen's text field. After that, follow steps 5 and 6 above, then click "Finish Unlock".
+                    The unlock assistant above will show the password. After finishing the steps inside the car, click "Finish Unlock".
                 </div>
                 <div id="step1CongratsMsg"></div>
             `;
             const finishBtn = document.getElementById("finishUnlockBtn3");
-            if (finishBtn) {
-                finishBtn.addEventListener("click", () => showCongratsMessageStep1());
-            }
+            if (finishBtn) finishBtn.addEventListener("click", () => showCongratsMessageStep1());
             const dialElem = document.getElementById("dialCodeCopy");
-            if (dialElem) {
-                dialElem.addEventListener("click", () => copyToClipboard("*#91532547#*"));
-            }
+            if (dialElem) dialElem.addEventListener("click", () => copyToClipboard("*#91532547#*"));
         } 
         else if (dilinkVersion === "5.0") {
             dynamicArea.innerHTML = `
@@ -521,21 +581,14 @@
                         <li>ADB debugging over WiFi is now active.</li>
                     </ol>
                 </div>
-                <div style="margin: 12px 0;">
-                    <button id="confirmAdb5Btn">Confirm ADB Debugging Enabled</button>
-                </div>
+                <div style="margin: 12px 0;"><button id="confirmAdb5Btn">Confirm ADB Debugging Enabled</button></div>
                 <div id="step1CongratsMsg"></div>
-                <div class="warning-note">
-                    Note: Tapping "Factory reset" does NOT wipe your car. This just unlocks developer ADB.
-                </div>
+                <div class="warning-note">Note: Tapping "Factory reset" does NOT wipe your car.</div>
             `;
             const confirmBtn = document.getElementById("confirmAdb5Btn");
-            if (confirmBtn) {
-                confirmBtn.addEventListener("click", () => showCongratsMessageStep1());
-            }
+            if (confirmBtn) confirmBtn.addEventListener("click", () => showCongratsMessageStep1());
         }
     }
-
     function showCongratsMessageStep1() {
         let congratsDiv = document.getElementById("step1CongratsMsg");
         if (!congratsDiv) {
@@ -552,7 +605,6 @@
             congratsDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
     }
-
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
             const toast = document.createElement("div");
@@ -572,8 +624,149 @@
         }).catch(() => alert("Manual copy: " + text));
     }
 
+    // ========================
+    // 2. UPGRADE IVI SOFTWARE WIZARD (In-Vehicle Infotainment)
+    // ========================
+    let currentStepUpgrade = 0;
+    let totalStepsUpgrade = 2;
+    const stepsUpgrade = [
+        { name: "Obtain IVI Firmware", render: renderUpgradeStep1 },
+        { name: "Follow Installation Guide", render: renderUpgradeStep2 }
+    ];
+
+    function refreshUpgradeStep() {
+        const stepDef = stepsUpgrade[currentStepUpgrade];
+        const container = document.getElementById("stepContentUpgrade");
+        if (!container) return;
+        const html = stepDef.render();
+        container.innerHTML = html;
+        document.getElementById("stepNameDisplayUpgrade").innerText = `Step ${currentStepUpgrade+1}: ${stepDef.name}`;
+        updateDotsUpgrade();
+        attachUpgradeEvents();
+    }
+
+    function updateDotsUpgrade() {
+        const dotsContainer = document.getElementById("dotsContainerUpgrade");
+        if (!dotsContainer) return;
+        let dotsHtml = "";
+        for (let i = 0; i < totalStepsUpgrade; i++) {
+            const activeClass = (i === currentStepUpgrade) ? "active" : "";
+            dotsHtml += `<div class="dot ${activeClass}"></div>`;
+        }
+        dotsContainer.innerHTML = dotsHtml;
+    }
+
+    function renderUpgradeStep1() {
+        return `
+            <div class="step-title"><span class="step-number-circle">1</span> Obtain IVI Firmware for your BYD</div>
+            <div class="instruction-card">
+                <p>Download the correct firmware for your BYD's <strong>In-Vehicle Infotainment (IVI) system</strong> from the community hub:</p>
+                <div class="firmware-link">
+                    🔗 <a href="https://modhub24.com/" target="_blank" rel="noopener noreferrer" style="color:#15803d; font-weight:600; text-decoration:underline;">https://modhub24.com/</a>
+                </div>
+                <ul style="margin-left: 20px; margin-top: 16px;">
+                    <li>Select your <strong>BYD model</strong> (Seal, Atto 3, Dolphin, Han, Tang, etc.) and current DiLink version.</li>
+                    <li>Check the controller/hardware version compatibility before downloading (Settings -> Version).</li>
+                    <li>Download the appropriate firmware package for the multimedia / IVI system (usually a ZIP file).</li>
+                </ul>
+                <div class="warning-note" style="margin-top: 20px;">
+                    ⚠️ <strong>IMPORTANT:</strong> Using the wrong firmware can brick your IVI (infotainment) system. Verify your hardware version. Join community forums to double-check compatibility.
+                </div>
+            </div>
+        `;
+    }
+
+    function renderUpgradeStep2() {
+        return `
+            <div class="step-title"><span class="step-number-circle">2</span> Follow On-Site Instructions</div>
+            <div class="instruction-card">
+                <p>After downloading the IVI firmware, <strong>strictly follow the guide provided on ModHub24</strong> for your specific car model and DiLink version.</p>
+                <p style="margin-top: 12px;">General guidelines for IVI update (varies by model):</p>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>Prepare a USB drive (FAT32 format, 16GB-32GB recommended).</li>
+                    <li>Extract the firmware and copy it to the USB following the exact folder structure described on the website.</li>
+                    <li>With the car ON and in P档 (Park), insert the USB into the data USB port (usually the left one).</li>
+                    <li>The system should prompt for an update automatically. If not, check the update menu in Settings.</li>
+                    <li><strong>Do not turn off the car or remove the USB during the process.</strong> It may take 10-30 minutes. The screen may reboot several times.</li>
+                </ul>
+                <div class="warning-note" style="background:#fef2e8; border-left-color:#dc2626;">
+                    [!!!] CRITICAL DISCLAIMER: I am NOT responsible for any damage, data loss, or bricked IVI unit. Upgrading firmware is done at your own risk. Ensure your 12V battery is fully charged. If unsure, consult a professional service.
+                </div>
+                <div style="margin-top: 20px; background:#eef2ff; border-radius: 24px; padding: 12px; text-align:center;">
+                    📖 <a href="https://modhub24.com/" target="_blank" rel="noopener noreferrer" style="color:#15803d;">Visit ModHub24.com for full installation steps & troubleshooting</a>
+                </div>
+            </div>
+        `;
+    }
+
+    function attachUpgradeEvents() {
+        addUpgradeNavigation();
+    }
+
+    function addUpgradeNavigation() {
+        const oldNav = document.querySelector(".upgrade-nav-wrapper");
+        if (oldNav) oldNav.remove();
+        const stepContainer = document.getElementById("stepContentUpgrade");
+        if (!stepContainer) return;
+        const wrapper = document.createElement("div");
+        wrapper.className = "upgrade-nav-wrapper";
+        wrapper.style.marginTop = "32px";
+        wrapper.innerHTML = `
+            <div class="nav-buttons">
+                <button id="prevStepUpgrade" class="outline" ${currentStepUpgrade === 0 ? 'disabled style="opacity:0.5;"' : ''}>Previous</button>
+                <button id="nextStepUpgrade" class="${currentStepUpgrade === totalStepsUpgrade-1 ? 'outline' : ''}">${currentStepUpgrade === totalStepsUpgrade-1 ? 'Finish' : 'Next'}</button>
+            </div>
+        `;
+        stepContainer.appendChild(wrapper);
+        const nextBtn = document.getElementById("nextStepUpgrade");
+        const prevBtn = document.getElementById("prevStepUpgrade");
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                if (currentStepUpgrade < totalStepsUpgrade - 1) {
+                    currentStepUpgrade++;
+                    refreshUpgradeStep();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                } else if (currentStepUpgrade === totalStepsUpgrade - 1) {
+                    alert("IVI upgrade preparation completed. Please follow the website guide carefully.");
+                }
+            });
+        }
+        if (prevBtn) {
+            prevBtn.addEventListener("click", () => {
+                if (currentStepUpgrade > 0) {
+                    currentStepUpgrade--;
+                    refreshUpgradeStep();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+            });
+        }
+    }
+
+    // ========================
+    // 3. TAB SWITCHING LOGIC & INIT
+    // ========================
+    function switchTab(tabId) {
+        document.getElementById("sideloadPanel").classList.remove("active-panel");
+        document.getElementById("upgradePanel").classList.remove("active-panel");
+        document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+        if (tabId === "sideload") {
+            document.getElementById("sideloadPanel").classList.add("active-panel");
+            document.querySelector(".tab-btn[data-tab='sideload']").classList.add("active");
+        } else {
+            document.getElementById("upgradePanel").classList.add("active-panel");
+            document.querySelector(".tab-btn[data-tab='upgrade']").classList.add("active");
+        }
+    }
+
     function init() {
-        refreshStep();
+        refreshSideloadStep();
+        refreshUpgradeStep();
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const tab = btn.getAttribute("data-tab");
+                switchTab(tab);
+            });
+        });
     }
     init();
 </script>
